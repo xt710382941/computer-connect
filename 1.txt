@@ -1,0 +1,238 @@
+#include <iostream>
+#include <queue>
+#include <iomanip>
+#include <fstream>
+using namespace std;
+ 
+typedef struct  
+{
+	char name;
+	int ArrivalTime;
+	int ServiceTime;
+	int FinishedTime;
+	int WholeTime;
+	double WeightWholeTime;
+}RR;
+ 
+static queue<RR>RRqueue;  //声明一个队列
+static double AverageWT =0,AverageWWT=0;
+static int q;  //时间片
+static int n;  //进程个数
+static RR RRarray[100];  //进程结构
+ 
+void Input()
+{
+	//文件读取模式
+	ifstream inData;
+	inData.open("./data4.txt");
+	//data.txt表示q = 4的RR调度算法
+	//data2.txt表示q = 1的RR调度算法
+	inData>>n;
+	inData>>q;
+ 
+	for (int i=0;i<n;i++)
+	{
+		inData>>RRarray[i].name;
+	}
+	for (int i=0;i<n;i++)
+	{
+		inData>>RRarray[i].ArrivalTime;
+	}
+	for (int i=0;i<n;i++)
+	{
+		inData>>RRarray[i].ServiceTime;
+	}
+ 
+ 
+	//用户输入模式
+	//cout<<"****************************************************************"<<endl;
+ 
+	//cout<<"please input the number of process n = ";
+	//cin>>n;
+	//cout<<"please input the number of timeSlice q = ";
+	//cin>>q;
+ 
+	//cout<<"please input the name of process:"<<endl;
+	//for (int i=0;i<n;i++)
+	//{
+	//	cin>>RRarray[i].name;
+	//}
+ 
+	//cout<<"please input the ArrivalTime of process:"<<endl;
+	//for (int i=0;i<n;i++)
+	//{
+	//	cin>>RRarray[i].ArrivalTime;
+	//}
+ 
+	//cout<<"please input the ServiceTime of process:"<<endl;
+	//for (int i=0;i<n;i++)
+	//{
+	//	cin>>RRarray[i].ServiceTime;
+	//}
+ 
+	cout<<"****************************************************************"<<endl;
+ 
+	//输出用户所输入的信息
+	cout<<"The information of processes is the following:"<<endl;
+	cout<<setw(10)<<"processName"<<" ";
+	cout<<setw(10)<<"ArrivalTime"<<" ";
+	cout<<setw(10)<<"ServiceTime"<<" "<<endl;
+	for (int i=0;i<n;i++)
+	{
+		cout<<setw(10)<<RRarray[i].name<<" ";
+		cout<<setw(10)<<RRarray[i].ArrivalTime<<" ";
+		cout<<setw(10)<<RRarray[i].ServiceTime<<" "<<endl;
+	}
+	cout<<"****************************************************************"<<endl;
+}
+ 
+void RRAlgorithm()
+{
+	char processMoment[100];   //存储每个时间片p对应的进程名称
+	RRqueue.push(RRarray[0]);
+ 
+	int processMomentPoint = 0;
+	int CurrentTime=0;
+	int tempTime;   //声明此变量控制CurrentTime的累加时间，当前进程的服务时间小于时间片q的时候，起到重要作用
+	int i=1;  //指向还未处理的进程的下标
+	int finalProcessNumber = 0;   //执行RR算法后，进程的个数
+	int processTime[50];
+ 
+	//CurrentTime的初始化
+	if (RRarray[0].ServiceTime>=q)
+	{
+		CurrentTime = q;
+	}
+	else
+	{
+		CurrentTime = RRarray[0].ServiceTime;
+	}
+ 
+	while(!RRqueue.empty())
+	{	
+		for (int j=i;j<n;j++)   //使得满足进程的到达时间小于当前时间的进程都进入队列
+		{
+			if (RRarray[j].name!=NULL && CurrentTime >= RRarray[j].ArrivalTime) 
+			{
+				RRqueue.push(RRarray[j]);
+				i++;
+			}
+		}
+		if (RRqueue.front().ServiceTime<q)
+		{
+			tempTime = RRqueue.front().ServiceTime;
+		}
+		else
+		{
+			tempTime = q;
+		}
+ 
+		RRqueue.front().ServiceTime -= q;   //进程每执行一次，就将其服务时间 -q
+ 
+		//将队首进程的名称放入数组中
+		processMoment[processMomentPoint] = RRqueue.front().name;
+		processMomentPoint++;
+		processTime[finalProcessNumber] = tempTime;
+		finalProcessNumber++;
+ 
+ 
+		if (RRqueue.front().ServiceTime <= 0)  //把执行完的进程退出队列
+		{
+			//RRqueue.front().FinishedTime = CurrentTime;
+			RRqueue.pop();   //如果进程的服务时间小于等于，即该进程已经服务完了，将其退栈
+ 
+		}
+		else
+		{
+			//将队首移到队尾
+			RRqueue.push(RRqueue.front());
+			RRqueue.pop();
+		}
+		CurrentTime += tempTime;	
+											
+	}
+ 
+	//进程输出处理   每个时间段对应的执行的进程
+	cout<<"各进程的执行时刻信息："<<endl;
+	cout<<"  "<<"0时刻 --> "<<setw(2)<<processTime[0]<<"时刻";
+	processTime[finalProcessNumber]=0;
+	int time = processTime[0];
+ 
+	int count = 0;
+ 
+	for (int i=0;i<finalProcessNumber;i++)
+	{		
+		count = 0;
+		cout<<setw(3)<<processMoment[i]<<setw(3)<<endl;
+ 
+		while(RRarray[count].name!=processMoment[i] && count<n)
+		{
+			count++;
+		}
+		RRarray[count].FinishedTime = time;
+ 
+		if (i<finalProcessNumber - 1)
+		{
+			cout<<setw(3)<<time<<"时刻"<<" --> "<<setw(2)<<time + processTime[i+1]<<"时刻"<<setw(3);
+			time += processTime[i+1];		
+		}
+ 
+	}
+	cout<<endl;
+ 
+	//周转时间、带权周转时间、平均周转时间、带权平均周转时间的计算
+	//1. 周转时间 = 完成时间 - 到达时间
+	//2. 带权周转时间 = 周转时间/服务时间
+ 
+	for (int i=0;i<n;i++)
+	{
+		RRarray[i].WholeTime = RRarray[i].FinishedTime - RRarray[i].ArrivalTime;
+		RRarray[i].WeightWholeTime = (double)RRarray[i].WholeTime/RRarray[i].ServiceTime;
+	}
+ 
+	double x=0,y=0;
+	for (int i=0;i<n;i++)
+	{
+		x += RRarray[i].WholeTime;
+		y += RRarray[i].WeightWholeTime;
+	}
+ 
+	AverageWT = x/n;
+	AverageWWT = y/n;
+ 
+}
+ 
+void display()
+{
+	cout<<"******************************************************"<<endl;
+	cout<<"RR调度算法执行后：进程相关信息如下："<<endl;
+	cout<<setw(10)<<"进程名（ID）"<<" ";
+	cout<<setw(10)<<"到达时间"<<" ";
+	cout<<setw(10)<<"服务时间"<<" ";
+	cout<<setw(10)<<"完成时间"<<" ";
+	cout<<setw(10)<<"周转时间"<<" ";
+	cout<<setw(10)<<"带权周转时间"<<endl;
+	for (int i = 0;i<n;i++)
+	{
+		cout<<setw(10)<<RRarray[i].name<<" ";
+		cout<<setw(10)<<RRarray[i].ArrivalTime<<" ";
+		cout<<setw(10)<<RRarray[i].ServiceTime<<" ";
+		cout<<setw(10)<<RRarray[i].FinishedTime<<" ";
+		cout<<setw(10)<<RRarray[i].WholeTime<<" ";
+		cout<<setw(10)<<RRarray[i].WeightWholeTime<<" "<<endl;;
+	}
+	cout<<"所有进程的平均周转时间 = "<<AverageWT<<endl;
+	cout<<"所有进程的平均带权周转时间 = "<<AverageWWT<<endl;
+	cout<<"******************************************************"<<endl;
+}
+ 
+int main()
+{
+	Input();
+	RRAlgorithm();
+	display();
+	system("pause");
+	return 0;
+}
+
+
