@@ -27,4 +27,4 @@ void deleteS(){
 	scanf("%d%d",&pointx,&pointy);
 	map[pointx-1][pointy-1]=map[pointy-1][pointx-1]=INF;
 
-}Áõ¾­Î³ 
+}li 
