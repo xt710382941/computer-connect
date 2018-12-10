@@ -1,0 +1,2 @@
+void addP();
+bool addS();
