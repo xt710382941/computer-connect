@@ -26,5 +26,6 @@ void deleteS(){
 	printf("请输入2个值分别为节点x、节点y:");
 	scanf("%d%d",&pointx,&pointy);
 	map[pointx-1][pointy-1]=map[pointy-1][pointx-1]=INF;
+	printf("qihongfei")
 
 }
