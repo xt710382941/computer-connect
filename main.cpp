@@ -78,6 +78,7 @@ int main(){
 			case 3:deleteS();break;
 			case 4:addP();break;
 			case 5:addS();break;
+		qhf 
 			//case 6:system("cls");menu();break;
 			//case 7:exit(0);break;
 		}
