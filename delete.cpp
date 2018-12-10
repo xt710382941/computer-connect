@@ -28,4 +28,4 @@ void deleteS(){
 	map[pointx-1][pointy-1]=map[pointy-1][pointx-1]=INF;
 	printf("qihongfei")
 
-}
+}li 
