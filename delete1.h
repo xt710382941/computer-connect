@@ -1,0 +1,2 @@
+void deleteP();
+void deleteS();
