@@ -18,5 +18,5 @@ bool addS(){
 	printf("请输入3个值分别为节点x、节点y、节点x到y边的长度:");
 	scanf("%d%d%d",&pointx,&pointy,&len);
 	map[pointx-1][pointy-1]=map[pointy-1][pointx-1]=len;
-
+222
 }
